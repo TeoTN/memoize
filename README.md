@@ -1,2 +1,0 @@
-# memoize
-Created with CodeSandbox
