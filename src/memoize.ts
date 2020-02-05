@@ -16,13 +16,12 @@ const arrayIdentity: ComparisonStrategy = (
 ): boolean => prevArgs.every((arg, idx) => nextArgs[idx] === arg);
 
 // Memoization strategy
-const lastCall: MemoizationStrategy = (areArgsSame: ComparisonStrategy) => {
-  let previousArgs = [];
-  let previousReturnValue;
-  return function apply<Fn extends AnyFunction>(
-    fn: Fn,
-    ...args: Parameters<Fn>
-  ) {
+const lastCall: MemoizationStrategy = <Fn extends AnyFunction>(
+  areArgsSame: ComparisonStrategy
+) => {
+  let previousArgs: Parameters<Fn>[] = [];
+  let previousReturnValue: ReturnType<Fn>;
+  return function apply(fn: Fn, ...args: Parameters<Fn>) {
     if (!areArgsSame(args, previousArgs)) {
       previousArgs = args;
       previousReturnValue = fn(...args);
@@ -31,8 +30,10 @@ const lastCall: MemoizationStrategy = (areArgsSame: ComparisonStrategy) => {
   };
 };
 
-const anyCall: MemoizationStrategy = (areArgsSame: ComparisonStrategy) => {
-  const previousCalls = {};
+const anyCall: MemoizationStrategy = <Fn extends AnyFunction>(
+  areArgsSame: ComparisonStrategy
+) => {
+  const previousCalls: Record<string, ReturnType<Fn>> = {};
   return function apply(fn, ...args) {
     const hash = JSON.stringify(args);
     if (!previousCalls[hash]) {
